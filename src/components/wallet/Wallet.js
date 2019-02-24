@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { formatCurrency } from '../utils/numberUtil';
+import { formatCurrency } from '../../utils/numberUtil';
 
 const Wallet = ({ currencyCode, currencyName, amount }) => {
   return (

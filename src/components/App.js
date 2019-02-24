@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import { getWalletsByUserId } from '../api/walletApi';
 import { mockUserId } from '../utils/mockData';
-import WalletsContainer from './WalletsContainer';
+import WalletsContainer from './wallet/WalletsContainer';
 
 const ApiState = {
   Init: 'Init',

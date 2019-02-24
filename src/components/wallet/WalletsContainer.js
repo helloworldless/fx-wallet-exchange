@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Wallet, { walletPropTypes } from './Wallet';
-import Swipeable from './Swipeable';
-import NavigationalButton from './NavigationalButton';
+import Swipeable from '../common/Swipeable';
+import NavigationalButton from '../common/NavigationalButton';
 
 class WalletsContainer extends PureComponent {
   constructor(props) {
