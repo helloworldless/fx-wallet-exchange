@@ -14,10 +14,13 @@ const Wallet = ({ currencyCode, currencyName, amount }) => {
   );
 };
 
-Wallet.propTypes = {
+const walletPropTypes = {
   currencyCode: PropTypes.string.isRequired,
   currencyName: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired
 };
 
+Wallet.propTypes = walletPropTypes;
+
+export { walletPropTypes };
 export default Wallet;

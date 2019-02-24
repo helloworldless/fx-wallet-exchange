@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import Wallet from './Wallet';
-import Swipeable from './Swipeable';
+
 import { getWalletsByUserId } from '../api/walletApi';
 import { mockUserId } from '../utils/mockData';
+import WalletsContainer from './WalletsContainer';
 
 const ApiState = {
   Init: 'Init',
@@ -39,17 +39,7 @@ class App extends Component {
         {walletApiState === ApiState.Fetching && <div>Loading wallets...</div>}
         {walletApiState === ApiState.Failed && <div>An error occurred...</div>}
         {wallets.length > 0 && (
-          <Swipeable>
-            {this.state.wallets.map(wallet => (
-              <Wallet
-                key={wallet.currencyCode}
-                currencyCode={wallet.currencyCode}
-                currencyName={wallet.currencyName}
-                currencySymbol={wallet.currencySymbol}
-                amount={wallet.amount}
-              />
-            ))}
-          </Swipeable>
+          <WalletsContainer wallets={this.state.wallets} />
         )}
       </div>
     );
