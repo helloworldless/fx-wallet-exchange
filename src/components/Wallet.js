@@ -5,7 +5,7 @@ import { formatCurrency } from '../utils/numberUtil';
 
 const Wallet = ({ currencyCode, currencyName, amount }) => {
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div>
       <h2>{formatCurrency({ currencyCode, amount })}</h2>
       <h4>
         {currencyCode} {currencyName}
@@ -17,7 +17,6 @@ const Wallet = ({ currencyCode, currencyName, amount }) => {
 Wallet.propTypes = {
   currencyCode: PropTypes.string.isRequired,
   currencyName: PropTypes.string.isRequired,
-  currencySymbol: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired
 };
 
