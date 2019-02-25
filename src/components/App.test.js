@@ -1,19 +1,29 @@
 import React from 'react';
 import App from './App';
 import { render, waitForElement, cleanup } from 'react-testing-library';
-import { getWalletsByUserId } from '../api/walletApi';
+import { getWalletsByUserId } from '../api/walletsApi';
 import { mockWalletData, mockUserId } from '../utils/mockData';
+
+import { Provider } from 'react-redux';
+import configureStore from '../store/configureStore';
+import { loadWallets } from '../actions/walletsActions';
 
 afterEach(cleanup);
 
-jest.mock('../api/walletApi');
+jest.mock('../api/walletsApi');
 getWalletsByUserId.mockImplementation(({ userId }) =>
   Promise.resolve(mockWalletData[userId])
 );
 
 describe('App', () => {
   it('renders without crashing', () => {
-    render(<App />);
+    const store = configureStore();
+    store.dispatch(loadWallets());
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
   });
 
   it('displays loading message', () => {

@@ -1,62 +1,47 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Wallet, { walletPropTypes } from './Wallet';
-import Swipeable from '../common/Swipeable';
-import NavigationalButton from '../common/NavigationalButton';
+import { connect } from 'react-redux';
+import WalletsBrowser from './WalletsBrowser';
+import { walletPropTypes } from './Wallet';
 
 class WalletsContainer extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { index: 0 };
-  }
+  state = { selectedWalletIndex: 0, wallets: [] };
 
-  handleChangeIndexSwipeable = index => {
+  handleChangeSelectedWalletSwipeable = selectedWalletIndex => {
     this.setState({
-      index
+      selectedWalletIndex
     });
   };
 
-  handleChangeIndexSwipeable = index => {
-    this.setState({
-      index
-    });
-  };
-  handleChangeIndexButton = event => {
-    const index = event.currentTarget.getAttribute('data-index');
-    console.log('index', index);
-    const parsedIndex = parseInt(index, 10);
+  handleChangeSelectedWalletButton = event => {
+    const selectedWalletIndex = event.currentTarget.getAttribute('data-index');
+    console.log('index', selectedWalletIndex);
+    const parsedIndex = parseInt(selectedWalletIndex, 10);
     console.log('parsedIndex', parsedIndex);
     this.setState({
-      index: parsedIndex
+      selectedWalletIndex: parsedIndex
     });
   };
 
   render() {
+    const { wallets } = this.props;
+    const { selectedWalletIndex } = this.state;
     return (
-      <div>
-        <Swipeable
-          index={this.state.index}
-          handleChangeIndex={this.handleChangeIndexSwipeable}
-        >
-          {this.props.wallets.map(wallet => (
-            <Wallet
-              key={wallet.currencyCode}
-              currencyCode={wallet.currencyCode}
-              currencyName={wallet.currencyName}
-              amount={wallet.amount}
-            />
-          ))}
-        </Swipeable>
-        <div>
-          {this.props.wallets.map((wallet, i) => (
-            <NavigationalButton
-              key={wallet.currencyCode}
-              isActive={this.state.index === i}
-              index={i}
-              handleClick={this.handleChangeIndexButton}
-            />
-          ))}
-        </div>
+      <div style={{ margin: '1rem', textAlign: 'center' }}>
+        {wallets.length > 0 ? (
+          <WalletsBrowser
+            selectedWalletIndex={selectedWalletIndex}
+            wallets={wallets}
+            handleChangeSelectedWalletSwipeable={
+              this.handleChangeSelectedWalletSwipeable
+            }
+            handleChangeSelectedWalletButton={
+              this.handleChangeSelectedWalletButton
+            }
+          />
+        ) : (
+          'Loading wallets...'
+        )}
       </div>
     );
   }
@@ -70,4 +55,9 @@ WalletsContainer.propTypes = {
   ).isRequired
 };
 
-export default WalletsContainer;
+const mapStateToProps = state => {
+  debugger;
+  return { wallets: state.wallets };
+};
+
+export default connect(mapStateToProps)(WalletsContainer);
