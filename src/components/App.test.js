@@ -8,17 +8,17 @@ import { Provider } from 'react-redux';
 import configureStore from '../store/configureStore';
 import { loadWallets } from '../actions/walletsActions';
 
-afterEach(cleanup);
-
 jest.mock('../api/walletsApi');
 getWalletsByUserId.mockImplementation(({ userId }) =>
   Promise.resolve(mockWalletData[userId])
 );
 
 describe('App', () => {
+  afterEach(cleanup);
+
   it('renders without crashing', () => {
+    // only creat store; no need to dispatch anything for simple render test
     const store = configureStore();
-    store.dispatch(loadWallets());
     render(
       <Provider store={store}>
         <App />
@@ -27,19 +27,41 @@ describe('App', () => {
   });
 
   it('displays loading message', () => {
-    const { getByText } = render(<App />);
+    // only create store
+    // don't dispatch loadWallets and we should get the loading message
+    const store = configureStore();
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
     expect(getByText(/loading/i)).toBeInTheDocument();
   });
 
   it('calls the wallet API', () => {
-    render(<App />);
+    const store = configureStore();
+    store.dispatch(loadWallets());
+
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
     expect(getWalletsByUserId).toHaveBeenCalledWith({
       userId: mockUserId
     });
   });
 
   it('renders wallet', async () => {
-    const { getByText } = render(<App />);
+    const store = configureStore();
+    store.dispatch(loadWallets());
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
     // wait and search for each currency in the mock wallet data
     await waitForElement(() =>
       mockWalletData[mockUserId].map(wallet =>
@@ -52,7 +74,15 @@ describe('App', () => {
     getWalletsByUserId.mockImplementation(({ userId }) =>
       Promise.reject('error message for testing')
     );
-    const { getByText } = render(<App />);
+
+    const store = configureStore();
+    store.dispatch(loadWallets());
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
     await waitForElement(() => getByText(/error/i));
   });
 });

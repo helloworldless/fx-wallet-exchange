@@ -24,8 +24,9 @@ class WalletsContainer extends PureComponent {
   };
 
   render() {
-    const { wallets } = this.props;
+    const { wallets, error } = this.props;
     const { selectedWalletIndex } = this.state;
+
     return (
       <div style={{ margin: '1rem', textAlign: 'center' }}>
         {wallets.length > 0 ? (
@@ -39,8 +40,10 @@ class WalletsContainer extends PureComponent {
               this.handleChangeSelectedWalletButton
             }
           />
+        ) : error ? (
+          <div>An error occurred.</div>
         ) : (
-          'Loading wallets...'
+          <div>Loading wallets...</div>
         )}
       </div>
     );
@@ -52,12 +55,12 @@ WalletsContainer.propTypes = {
     PropTypes.shape({
       ...walletPropTypes
     })
-  ).isRequired
+  ).isRequired,
+  error: PropTypes.string
 };
 
 const mapStateToProps = state => {
-  debugger;
-  return { wallets: state.wallets };
+  return { wallets: state.wallets, error: state.walletsError };
 };
 
 export default connect(mapStateToProps)(WalletsContainer);
