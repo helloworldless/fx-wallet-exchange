@@ -40,3 +40,36 @@ code {
   background: transparent;
   border: none;
 }
+
+%centered {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+$page-margin: 1rem;
+.page {
+  @extend %centered;
+  margin: $page-margin;
+  height: calc(100vh - 2 * #{$page-margin});
+}
+
+.link {
+  text-decoration: none;
+  cursor: pointer;
+  color: white;
+}
+
+.link-container {
+  @extend %centered;
+}
+
+.link-icon {
+  margin: 0.1rem;
+}
+
+.link-icon-label {
+  font-size: 0.8rem;
+  margin: 0.1rem;
+}

@@ -6,10 +6,10 @@ import { formatCurrency } from '../../utils/numberUtil';
 const Wallet = ({ currencyCode, currencyName, amount }) => {
   return (
     <div>
-      <h2>{formatCurrency({ currencyCode, amount })}</h2>
-      <h4>
+      <h1>{formatCurrency({ currencyCode, amount })}</h1>
+      <h2>
         {currencyCode} {currencyName}
-      </h4>
+      </h2>
     </div>
   );
 };

@@ -4,9 +4,6 @@ import { connect } from 'react-redux';
 import WalletsBrowser from './WalletsBrowser';
 import { walletPropTypes } from './Wallet';
 
-const margin = '1rem';
-const styles = { container: { margin, height: `calc(100vh - 2 * ${margin})` } };
-
 class WalletsContainer extends PureComponent {
   state = { selectedWalletIndex: 0, wallets: [] };
 
@@ -29,7 +26,7 @@ class WalletsContainer extends PureComponent {
     const { selectedWalletIndex } = this.state;
 
     return (
-      <div style={styles.container}>
+      <div className="page">
         {wallets.length > 0 ? (
           <WalletsBrowser
             selectedWalletIndex={selectedWalletIndex}

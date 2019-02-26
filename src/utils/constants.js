@@ -4,3 +4,5 @@ export const ApiState = {
   Failed: 'Failed',
   Suceeded: 'Succeeded'
 };
+
+export const paths = { root: '/', wallets: '/wallets', exchange: '/exchange' };

@@ -8,6 +8,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-redux": "^6.0.1",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
     "react-swipeable-views": "^0.13.1",
     "react-swipeable-views-utils": "^0.13.1",
@@ -29,7 +30,8 @@
       "prettier/prettier": "error",
       "react/prop-types": [
         2
-      ]
+      ],
+      "no-debugger": "error"
     }
   },
   "prettier": {

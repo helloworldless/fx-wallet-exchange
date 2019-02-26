@@ -1,19 +1,19 @@
 import React from 'react';
-import App from './App';
+import WalletsPage from './WalletsPage';
 import { render, waitForElement, cleanup } from 'react-testing-library';
-import { getWalletsByUserId } from '../api/walletsApi';
-import { mockWalletData, mockUserId } from '../utils/mockData';
-
+import { getWalletsByUserId } from '../../api/walletsApi';
+import { mockWalletData, mockUserId } from '../../utils/mockData';
 import { Provider } from 'react-redux';
-import configureStore from '../store/configureStore';
-import { loadWallets } from '../actions/walletsActions';
+import configureStore from '../../store/configureStore';
+import { loadWallets } from '../../actions/walletsActions';
+import { BrowserRouter } from 'react-router-dom';
 
-jest.mock('../api/walletsApi');
+jest.mock('../../api/walletsApi');
 getWalletsByUserId.mockImplementation(({ userId }) =>
   Promise.resolve(mockWalletData[userId])
 );
 
-describe('App', () => {
+describe('WalletPage', () => {
   afterEach(cleanup);
 
   it('renders without crashing', () => {
@@ -21,7 +21,9 @@ describe('App', () => {
     const store = configureStore();
     render(
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
       </Provider>
     );
   });
@@ -33,7 +35,9 @@ describe('App', () => {
 
     const { getByText } = render(
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
       </Provider>
     );
     expect(getByText(/loading/i)).toBeInTheDocument();
@@ -45,7 +49,9 @@ describe('App', () => {
 
     render(
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
       </Provider>
     );
     expect(getWalletsByUserId).toHaveBeenCalledWith({
@@ -53,13 +59,15 @@ describe('App', () => {
     });
   });
 
-  it('renders wallet', async () => {
+  it('renders a wallet for each wallet in test data', async () => {
     const store = configureStore();
     store.dispatch(loadWallets());
 
     const { getByText } = render(
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
       </Provider>
     );
     // wait and search for each currency in the mock wallet data
@@ -68,6 +76,20 @@ describe('App', () => {
         getByText(new RegExp(wallet.currencyCode))
       )
     );
+  });
+
+  it('has a link to the exchange page', async () => {
+    const store = configureStore();
+    store.dispatch(loadWallets());
+
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
+      </Provider>
+    );
+    await waitForElement(() => getByTestId('link-to-exchange-page'));
   });
 
   it('displays an error if the API call fails', async () => {
@@ -80,7 +102,9 @@ describe('App', () => {
 
     const { getByText } = render(
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <WalletsPage />
+        </BrowserRouter>
       </Provider>
     );
     await waitForElement(() => getByText(/error/i));

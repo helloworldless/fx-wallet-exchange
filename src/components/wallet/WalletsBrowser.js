@@ -3,15 +3,9 @@ import PropTypes from 'prop-types';
 import Wallet, { walletPropTypes } from './Wallet';
 import Swipeable from '../common/Swipeable';
 import WalletsNav from './WalletsNav';
-
-const styles = {
-  container: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center'
-  }
-};
+import { paths } from '../../utils/constants';
+import { Refresh } from '@material-ui/icons';
+import IconLink from '../common/IconLink';
 
 const WalletsBrowser = ({
   selectedWalletIndex,
@@ -20,7 +14,7 @@ const WalletsBrowser = ({
   handleChangeSelectedWalletButton
 }) => {
   return (
-    <div style={styles.container}>
+    <div>
       <Swipeable
         index={selectedWalletIndex}
         handleChangeIndex={handleChangeSelectedWalletSwipeable}
@@ -38,6 +32,12 @@ const WalletsBrowser = ({
         selectedWalletIndex={selectedWalletIndex}
         wallets={wallets}
         handleChangeSelectedWalletButton={handleChangeSelectedWalletButton}
+      />
+      <IconLink
+        to={paths.exchange}
+        Icon={Refresh}
+        label="Exchange"
+        testid="link-to-exchange-page"
       />
     </div>
   );
