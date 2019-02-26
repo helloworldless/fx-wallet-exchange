@@ -2,7 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Wallet, { walletPropTypes } from './Wallet';
 import Swipeable from '../common/Swipeable';
-import NavigationalButton from '../common/NavigationalButton';
+import WalletsNav from './WalletsNav';
+
+const styles = {
+  container: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  }
+};
 
 const WalletsBrowser = ({
   selectedWalletIndex,
@@ -11,7 +20,7 @@ const WalletsBrowser = ({
   handleChangeSelectedWalletButton
 }) => {
   return (
-    <div>
+    <div style={styles.container}>
       <Swipeable
         index={selectedWalletIndex}
         handleChangeIndex={handleChangeSelectedWalletSwipeable}
@@ -25,16 +34,11 @@ const WalletsBrowser = ({
           />
         ))}
       </Swipeable>
-      <div>
-        {wallets.map((wallet, i) => (
-          <NavigationalButton
-            key={wallet.currencyCode}
-            isActive={selectedWalletIndex === i}
-            index={i}
-            handleClick={handleChangeSelectedWalletButton}
-          />
-        ))}
-      </div>
+      <WalletsNav
+        selectedWalletIndex={selectedWalletIndex}
+        wallets={wallets}
+        handleChangeSelectedWalletButton={handleChangeSelectedWalletButton}
+      />
     </div>
   );
 };

@@ -4,6 +4,9 @@ import { connect } from 'react-redux';
 import WalletsBrowser from './WalletsBrowser';
 import { walletPropTypes } from './Wallet';
 
+const margin = '1rem';
+const styles = { container: { margin, height: `calc(100vh - 2 * ${margin})` } };
+
 class WalletsContainer extends PureComponent {
   state = { selectedWalletIndex: 0, wallets: [] };
 
@@ -15,9 +18,7 @@ class WalletsContainer extends PureComponent {
 
   handleChangeSelectedWalletButton = event => {
     const selectedWalletIndex = event.currentTarget.getAttribute('data-index');
-    console.log('index', selectedWalletIndex);
     const parsedIndex = parseInt(selectedWalletIndex, 10);
-    console.log('parsedIndex', parsedIndex);
     this.setState({
       selectedWalletIndex: parsedIndex
     });
@@ -28,7 +29,7 @@ class WalletsContainer extends PureComponent {
     const { selectedWalletIndex } = this.state;
 
     return (
-      <div style={{ margin: '1rem', textAlign: 'center' }}>
+      <div style={styles.container}>
         {wallets.length > 0 ? (
           <WalletsBrowser
             selectedWalletIndex={selectedWalletIndex}
