@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Wallet, { walletPropTypes } from './Wallet';
 import Swipeable from '../common/Swipeable';
-import WalletsNav from './WalletsNav';
-import { paths } from '../../utils/constants';
+import NavForSwipeable from '../common/NavForSwipeable';
+import { paths } from '../../constants/constants';
 import { Refresh } from '@material-ui/icons';
 import IconLink from '../common/IconLink';
 
@@ -28,10 +28,10 @@ const WalletsBrowser = ({
           />
         ))}
       </Swipeable>
-      <WalletsNav
-        selectedWalletIndex={selectedWalletIndex}
-        wallets={wallets}
-        handleChangeSelectedWalletButton={handleChangeSelectedWalletButton}
+      <NavForSwipeable
+        selectedIndex={selectedWalletIndex}
+        itemKeys={wallets.map(wallet => wallet.currencyCode)}
+        handleChangeSelected={handleChangeSelectedWalletButton}
       />
       <IconLink
         to={paths.exchange}

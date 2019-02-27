@@ -4,7 +4,7 @@ import WalletsPage from './wallet/WalletsPage';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import ExchangePage from './exchange/ExchangePage';
-import { paths } from '../utils/constants';
+import { paths } from '../constants/constants';
 
 const Root = ({ store }) => {
   return (

@@ -41,16 +41,17 @@ code {
   border: none;
 }
 
-%centered {
+%flex-centered {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
 $page-margin: 1rem;
 .page {
-  @extend %centered;
+  @extend %flex-centered;
+  flex-direction: column;
+
   margin: $page-margin;
   height: calc(100vh - 2 * #{$page-margin});
 }
@@ -62,7 +63,8 @@ $page-margin: 1rem;
 }
 
 .link-container {
-  @extend %centered;
+  @extend %flex-centered;
+  flex-direction: column;
 }
 
 .link-icon {
@@ -72,4 +74,28 @@ $page-margin: 1rem;
 .link-icon-label {
   font-size: 0.8rem;
   margin: 0.1rem;
+}
+
+.input-nostyle {
+  background: none;
+  border: none;
+  border-color: transparent;
+  outline: none;
+}
+
+.exchange-amount-input {
+  color: $theme-text-primary;
+  padding: 1rem;
+  line-height: 2rem;
+  &::placeholder {
+    color: lighten($theme-text-primary, 40%);
+    font-size: 1rem;
+  }
+}
+
+.exchange-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
 }

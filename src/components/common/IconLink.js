@@ -17,7 +17,7 @@ const IconLink = ({ to, Icon, label, testid }) => {
 
 IconLink.propTypes = {
   to: PropTypes.string.isRequired,
-  Icon: PropTypes.node.isRequired,
+  Icon: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
   label: PropTypes.node.isRequired,
   testid: PropTypes.string
 };

@@ -8,4 +8,18 @@ const formatCurrency = ({ currencyCode, amount }) => {
   });
 };
 
-export { formatCurrency };
+const createPair = (from, to) => ({ from, to });
+
+const getAttribute = attr => event => event.currentTarget.getAttribute(attr);
+const getDataIndex = getAttribute('data-index');
+
+const parseI = value => parseInt(value, 10);
+
+const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x);
+
+const getIndex = pipe(
+  getDataIndex,
+  parseI
+);
+
+export { formatCurrency, createPair, getIndex };

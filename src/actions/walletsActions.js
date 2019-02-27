@@ -1,5 +1,5 @@
-import { getWalletsByUserId } from '../api/walletsApi';
-import { mockUserId } from '../utils/mockData';
+import WalletsApi from '../api/WalletsApi';
+import { mockUserId } from '../data/mockData';
 import * as types from './actionTypes';
 
 export function loadWalletsSuccess(wallets) {
@@ -13,7 +13,9 @@ export function loadWalletsFailure(error) {
 export function loadWallets() {
   return async dispatch => {
     try {
-      const wallets = await getWalletsByUserId({ userId: mockUserId });
+      const wallets = await WalletsApi.getWalletsByUserId({
+        userId: mockUserId
+      });
       dispatch(loadWalletsSuccess(wallets));
     } catch (e) {
       dispatch(loadWalletsFailure(e));

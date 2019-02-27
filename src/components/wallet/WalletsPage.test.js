@@ -1,15 +1,15 @@
 import React from 'react';
 import WalletsPage from './WalletsPage';
 import { render, waitForElement, cleanup } from 'react-testing-library';
-import { getWalletsByUserId } from '../../api/walletsApi';
-import { mockWalletData, mockUserId } from '../../utils/mockData';
+import WalletsApi from '../../api/WalletsApi';
+import { mockWalletData, mockUserId } from '../../data/mockData';
 import { Provider } from 'react-redux';
 import configureStore from '../../store/configureStore';
 import { loadWallets } from '../../actions/walletsActions';
 import { BrowserRouter } from 'react-router-dom';
 
-jest.mock('../../api/walletsApi');
-getWalletsByUserId.mockImplementation(({ userId }) =>
+jest.mock('../../api/WalletsApi');
+WalletsApi.getWalletsByUserId.mockImplementation(({ userId }) =>
   Promise.resolve(mockWalletData[userId])
 );
 
@@ -54,7 +54,7 @@ describe('WalletPage', () => {
         </BrowserRouter>
       </Provider>
     );
-    expect(getWalletsByUserId).toHaveBeenCalledWith({
+    expect(WalletsApi.getWalletsByUserId).toHaveBeenCalledWith({
       userId: mockUserId
     });
   });
@@ -93,7 +93,7 @@ describe('WalletPage', () => {
   });
 
   it('displays an error if the API call fails', async () => {
-    getWalletsByUserId.mockImplementation(({ userId }) =>
+    WalletsApi.getWalletsByUserId.mockImplementation(({ userId }) =>
       Promise.reject('error message for testing')
     );
 

@@ -5,8 +5,13 @@ import { bindKeyboard } from 'react-swipeable-views-utils';
 
 const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews);
 
-const Swipeable = ({ children, index, handleChangeIndex }) => {
-  return (
+const Swipeable = ({
+  keyboardEnabled = true,
+  children,
+  index,
+  handleChangeIndex
+}) => {
+  return keyboardEnabled ? (
     <BindKeyboardSwipeableViews
       index={index}
       onChangeIndex={handleChangeIndex}
@@ -15,10 +20,20 @@ const Swipeable = ({ children, index, handleChangeIndex }) => {
     >
       {children}
     </BindKeyboardSwipeableViews>
+  ) : (
+    <SwipeableViews
+      index={index}
+      onChangeIndex={handleChangeIndex}
+      style={{ cursor: 'pointer' }}
+      enableMouseEvents
+    >
+      {children}
+    </SwipeableViews>
   );
 };
 
 Swipeable.propTypes = {
+  keyboardEnabled: PropTypes.bool,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node

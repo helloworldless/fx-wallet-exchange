@@ -1,9 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const NavButton = ({ index, children, handleClick }) => {
+export const KeyItemPropType = PropTypes.oneOfType([
+  PropTypes.number,
+  PropTypes.string
+]);
+
+const NavButton = ({ index, itemKey, children, handleClick }) => {
   return (
-    <button className="button-nostyle" data-index={index} onClick={handleClick}>
+    <button
+      className="button-nostyle"
+      value={itemKey}
+      data-index={index}
+      onClick={handleClick}
+    >
       {children}
     </button>
   );
@@ -11,6 +21,7 @@ const NavButton = ({ index, children, handleClick }) => {
 
 NavButton.propTypes = {
   index: PropTypes.number.isRequired,
+  itemKey: KeyItemPropType.isRequired,
   children: PropTypes.node.isRequired,
   handleClick: PropTypes.func.isRequired
 };
