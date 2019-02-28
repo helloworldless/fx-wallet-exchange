@@ -12,10 +12,10 @@ export function loadRatesFailure(error) {
 export function loadRates() {
   return async dispatch => {
     try {
-      const { ratesMap, availableCurrencies } = await FxRatesApi.getRates();
+      const { rates, availableCurrencies } = await FxRatesApi.getRates();
       dispatch(
         loadRatesSuccess({
-          map: ratesMap,
+          rates,
           currencies: availableCurrencies
         })
       );

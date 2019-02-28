@@ -1,15 +1,15 @@
 import * as types from '../actions/actionTypes';
 
 export default function ratesReducer(
-  state = { map: new Map(), currencies: [] },
+  state = { rates: {}, currencies: [] },
   action
 ) {
   switch (action.type) {
     case types.LOAD_RATES_SUCCESS:
       console.info('Updated rates received');
-      const { map, currencies } = action.rates;
+      const { rates, currencies } = action.rates;
       return {
-        map,
+        rates,
         currencies
       };
     default:

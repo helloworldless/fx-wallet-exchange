@@ -4,6 +4,17 @@ import Swipeable from '../common/Swipeable';
 import NavForSwipeable from '../common/NavForSwipeable';
 import { formatCurrency } from '../../utils/util';
 import { Side } from '../../constants/constants';
+import { MAX_AMOUNT } from './ExchangePage';
+
+// const formatInputAmount = (fromOrTo, inputAmount) => {
+//   if (inputAmount === '') return inputAmount;
+//   return fromOrTo === Side.From ? `-${inputAmount}` : `+${inputAmount}`;
+// };
+
+// const formatAmount = (fromOrTo, amount, code) => {
+//   const newAmount = fromOrTo === Side.From ? amount * -1 : amount;
+//   return formatCurrency({ currencyCode: code, amount: newAmount });
+// };
 
 const ExchangeSide = ({
   availableCurrencyCodes,
@@ -15,6 +26,7 @@ const ExchangeSide = ({
   error,
   selectedIndex,
   placeholder,
+  wallets,
   handleChangeToIndex,
   handleChangeFromIndex,
   handleChangeAmount,
@@ -32,29 +44,39 @@ const ExchangeSide = ({
       >
         {availableCurrencyCodes.map(ccy => (
           <div key={ccy} className="exchange-group">
-            <h1>{ccy}</h1>
             <div>
-              {formatCurrency({
-                currencyCode: code,
-                amount: amount
-              })}
-            </div>
-            <div>
-              <input
-                className="input-nostyle exchange-amount-input"
-                type="text"
-                value={inputAmount}
-                placeholder={placeholder}
-                data-from-to={fromOrTo}
-                onChange={handleChangeAmount}
-              />
-              <div style={{ height: '1rem' }}>
-                {!isAmountValid && <div>{error}</div>}
-              </div>
+              <h1>{ccy}</h1>
+              {wallets[ccy] && (
+                <div>
+                  You have{' '}
+                  {formatCurrency({
+                    currencyCode: ccy,
+                    amount: wallets[ccy].amount
+                  })}
+                </div>
+              )}
             </div>
           </div>
         ))}
       </Swipeable>
+      <div>
+        <input
+          className="input-nostyle exchange-amount-input"
+          type="number"
+          step="0.01"
+          min="0"
+          max={MAX_AMOUNT}
+          value={inputAmount}
+          // value={formatInputAmount(fromOrTo, inputAmount)}
+          // value={formatAmount(fromOrTo, amount, code)}
+          placeholder={placeholder}
+          data-from-to={fromOrTo}
+          onChange={handleChangeAmount}
+        />
+        <div style={{ height: '1rem' }}>
+          {!isAmountValid && <div>{error}</div>}
+        </div>
+      </div>
       <NavForSwipeable
         selectedIndex={selectedIndex}
         itemKeys={availableCurrencyCodes}
@@ -78,6 +100,7 @@ ExchangeSide.propTypes = {
   error: PropTypes.string,
   selectedIndex: PropTypes.number.isRequired,
   placeholder: PropTypes.string.isRequired,
+  wallets: PropTypes.object.isRequired,
   handleChangeToIndex: PropTypes.func.isRequired,
   handleChangeFromIndex: PropTypes.func.isRequired,
   handleChangeAmount: PropTypes.func.isRequired,
