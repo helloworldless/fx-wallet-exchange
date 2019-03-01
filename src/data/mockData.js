@@ -29,10 +29,10 @@ const availableCurrencies = [Currency.USD, Currency.GBP, Currency.EUR];
 const mockRates = {
   [Currency.USD + Currency.EUR]: 0.877693,
   [Currency.USD + Currency.GBP]: 0.754209,
-  [Currency.EUR + Currency.GBP]: 1.163726,
-  [Currency.EUR + Currency.USD]: 1.13935,
+  [Currency.EUR + Currency.GBP]: 0.857854,
+  [Currency.EUR + Currency.USD]: 1.136983,
   [Currency.GBP + Currency.USD]: 1.325892,
-  [Currency.GBP + Currency.EUR]: 0.859308
+  [Currency.GBP + Currency.EUR]: 1.165699
 };
 
 export { mockWalletData, mockUserId, mockRates, availableCurrencies };

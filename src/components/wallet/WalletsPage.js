@@ -3,9 +3,19 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import WalletsBrowser from './WalletsBrowser';
 import { walletPropTypes } from './Wallet';
+import { loadWallets } from '../../actions/walletsActions';
+import { loadExchangeHistory } from '../../actions/exchangeHistoryActions';
+import { formatCurrency } from '../../utils/util';
+import { mockUserId } from '../../data/mockData';
 
 class WalletsContainer extends PureComponent {
-  state = { selectedWalletIndex: 0, wallets: [] };
+  state = { userId: mockUserId, selectedWalletIndex: 0 };
+
+  componentDidMount() {
+    const { userId } = this.state;
+    this.props.loadWallets({ userId });
+    this.props.loadExchangeHistory({ userId });
+  }
 
   handleChangeSelectedWalletSwipeable = selectedWalletIndex => {
     this.setState({
@@ -22,7 +32,7 @@ class WalletsContainer extends PureComponent {
   };
 
   render() {
-    const { wallets, error } = this.props;
+    const { wallets, error, exchangeHistory } = this.props;
     const { selectedWalletIndex } = this.state;
 
     return (
@@ -43,6 +53,26 @@ class WalletsContainer extends PureComponent {
         ) : (
           <div>Loading wallets...</div>
         )}
+        {exchangeHistory.length > 0 && (
+          <div>
+            <h3>History</h3>
+            {exchangeHistory.map((hist, i) => (
+              <div>
+                Sell{' '}
+                {formatCurrency({
+                  currencyCode: hist.from.code,
+                  amount: hist.from.amount
+                })}{' '}
+                / Buy{' '}
+                {formatCurrency({
+                  currencyCode: hist.to.code,
+                  amount: hist.to.amount
+                })}{' '}
+                @ {hist.rate} {hist.from.code}/{hist.to.code}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -54,11 +84,29 @@ WalletsContainer.propTypes = {
       ...walletPropTypes
     })
   ).isRequired,
-  error: PropTypes.string
+  error: PropTypes.string,
+  exchangeHistory: PropTypes.array.isRequired,
+  loadWallets: PropTypes.func.isRequired,
+  loadExchangeHistory: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
-  return { wallets: state.wallets, error: state.walletsError };
+  return {
+    wallets: state.wallets,
+    error: state.walletsError,
+    exchangeHistory: state.exchangeHistory
+  };
 };
 
-export default connect(mapStateToProps)(WalletsContainer);
+const mapDispatchToProps = dispatch => {
+  return {
+    loadWallets: ({ userId }) => dispatch(loadWallets({ userId })),
+    loadExchangeHistory: ({ userId }) =>
+      dispatch(loadExchangeHistory({ userId }))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(WalletsContainer);

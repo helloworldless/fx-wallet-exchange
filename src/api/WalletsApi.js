@@ -20,31 +20,43 @@ Object.keys(mockWalletData).forEach(
   userId => (walletsHistory[userId] = [mockWalletData[userId]])
 );
 
-const getLatestWallets = userId => {
+const getLatestWallets = ({ userId }) => {
   const history = walletsHistory[userId];
   return history[history.length - 1];
 };
 
-const addWalletsHistory = (userId, wallets) => {
-  walletsHistory[userId].push(wallets);
+const addWalletsHistory = ({ userId, wallets }) => {
+  const history = walletsHistory[userId];
+  history.push(wallets);
 };
 
-const WalletsApi = {
-  getWalletsByUserId({ userId }) {
+// userId: [{from, to, rate}]
+const exchangeHistory = {};
+
+const addExchangeHistory = ({ userId, from, to, rate }) => {
+  const existingHistory = exchangeHistory[userId];
+  const nextHistory = existingHistory ? [...existingHistory] : [];
+  nextHistory.push({ userId, from, to, rate });
+  exchangeHistory[userId] = nextHistory;
+};
+
+class WalletsApi {
+  static async getWalletsByUserId({ userId }) {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve(getLatestWallets(userId));
+        resolve(getLatestWallets({ userId }));
       }, DELAY);
     });
-  },
-  exchange({ userId, from, to, rate }) {
-    return new Promise(resolve => {
+  }
+
+  static async exchange({ userId, from, to, rate }) {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const wallets = [...getLatestWallets(userId)];
+        const wallets = [...getLatestWallets({ userId })];
 
         const valid = isValid({ userId, from, to, rate, wallets });
         if (!valid) {
-          throw new Error('Invalid exchange');
+          reject('Invalid exchange');
         }
 
         const newWallets = wallets.map(wallet => {
@@ -59,11 +71,20 @@ const WalletsApi = {
           return newWallet;
         });
 
-        addWalletsHistory(userId, newWallets);
+        addWalletsHistory({ userId, wallets: newWallets });
+        addExchangeHistory({ userId, from, to, rate });
         resolve(newWallets);
       }, DELAY);
     });
   }
-};
+
+  static async getExchangeHistory({ userId }) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(exchangeHistory[userId]);
+      }, DELAY);
+    });
+  }
+}
 
 export default WalletsApi;

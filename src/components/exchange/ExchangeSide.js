@@ -16,8 +16,11 @@ import { MAX_AMOUNT } from './ExchangePage';
 //   return formatCurrency({ currencyCode: code, amount: newAmount });
 // };
 
+const getAmountAfter = (fromOrTo, walletAmount, amount) => {
+  return fromOrTo === Side.From ? walletAmount - amount : walletAmount + amount;
+};
+
 const ExchangeSide = ({
-  availableCurrencyCodes,
   fromOrTo,
   code,
   amount,
@@ -27,19 +30,22 @@ const ExchangeSide = ({
   selectedIndex,
   placeholder,
   wallets,
-  handleChangeToIndex,
-  handleChangeFromIndex,
+  handleChangeCurrencySwipeTo,
+  handleChangeCurrencySwipeFrom,
   handleChangeAmount,
-  handleChangeSelectedToCurrency,
-  handleChangeSelectedFromCurrency
+  handleChangeCurrencyButtonTo,
+  handleChangeCurrencyButtonFrom
 }) => {
+  const availableCurrencyCodes = Object.keys(wallets);
   return (
     <div>
       <Swipeable
         keyboardEnabled={false}
         index={selectedIndex}
         handleChangeIndex={
-          fromOrTo === Side.To ? handleChangeToIndex : handleChangeFromIndex
+          fromOrTo === Side.To
+            ? handleChangeCurrencySwipeTo
+            : handleChangeCurrencySwipeFrom
         }
       >
         {availableCurrencyCodes.map(ccy => (
@@ -48,11 +54,30 @@ const ExchangeSide = ({
               <h1>{ccy}</h1>
               {wallets[ccy] && (
                 <div>
-                  You have{' '}
-                  {formatCurrency({
-                    currencyCode: ccy,
-                    amount: wallets[ccy].amount
-                  })}
+                  <div>
+                    You have{' '}
+                    {formatCurrency({
+                      currencyCode: ccy,
+                      amount: wallets[ccy].amount
+                    })}
+                  </div>
+
+                  <div style={{ height: '1rem' }}>
+                    {amount > 0 && isAmountValid && (
+                      <div>
+                        After{' '}
+                        {formatCurrency({
+                          currencyCode: ccy,
+                          amount: getAmountAfter(
+                            fromOrTo,
+                            wallets[ccy].amount,
+                            amount
+                          )
+                        })}
+                      </div>
+                    )}
+                    {!isAmountValid && <div>{error}</div>}
+                  </div>
                 </div>
               )}
             </div>
@@ -73,17 +98,14 @@ const ExchangeSide = ({
           data-from-to={fromOrTo}
           onChange={handleChangeAmount}
         />
-        <div style={{ height: '1rem' }}>
-          {!isAmountValid && <div>{error}</div>}
-        </div>
       </div>
       <NavForSwipeable
         selectedIndex={selectedIndex}
         itemKeys={availableCurrencyCodes}
         handleChangeSelected={
           fromOrTo === Side.To
-            ? handleChangeSelectedToCurrency
-            : handleChangeSelectedFromCurrency
+            ? handleChangeCurrencyButtonTo
+            : handleChangeCurrencyButtonFrom
         }
       />
     </div>
@@ -91,7 +113,6 @@ const ExchangeSide = ({
 };
 
 ExchangeSide.propTypes = {
-  availableCurrencyCodes: PropTypes.arrayOf(PropTypes.string.isRequired),
   fromOrTo: PropTypes.oneOf([Side.From, Side.To]),
   code: PropTypes.string.isRequired,
   amount: PropTypes.number.isRequired,
@@ -101,11 +122,11 @@ ExchangeSide.propTypes = {
   selectedIndex: PropTypes.number.isRequired,
   placeholder: PropTypes.string.isRequired,
   wallets: PropTypes.object.isRequired,
-  handleChangeToIndex: PropTypes.func.isRequired,
-  handleChangeFromIndex: PropTypes.func.isRequired,
+  handleChangeCurrencySwipeTo: PropTypes.func.isRequired,
+  handleChangeCurrencySwipeFrom: PropTypes.func.isRequired,
   handleChangeAmount: PropTypes.func.isRequired,
-  handleChangeSelectedToCurrency: PropTypes.func.isRequired,
-  handleChangeSelectedFromCurrency: PropTypes.func.isRequired
+  handleChangeCurrencyButtonTo: PropTypes.func.isRequired,
+  handleChangeCurrencyButtonFrom: PropTypes.func.isRequired
 };
 
 export default ExchangeSide;

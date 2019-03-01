@@ -1,21 +1,27 @@
 import * as types from '../actions/actionTypes';
+import { buildEmptySide } from '../utils/exchangeUtil';
 
-const initialState = { fetchesInProgress: 0, error: null, wallets: [] };
+const initialState = {
+  from: buildEmptySide(),
+  to: buildEmptySide(),
+  error: null
+};
 
 export default function exchangeReducer(state = initialState, action) {
   switch (action.type) {
+    case types.UPDATE_EXCHANGE_PARAMETERS:
+      return { ...state, ...action.payload };
     case types.INITIATE_EXCHANGE:
-      return { error: '', fetchesInProgress: state.fetchesInProgress + 1 };
+      return { ...state, error: '' };
     case types.EXCHANGE_SUCCESS:
       return {
-        error: '',
-        fetchesInProgress: state.fetchesInProgress - 1,
-        wallets: action.wallets
+        ...state,
+        error: ''
       };
     case types.EXCHANGE_FAILURE:
       return {
-        error: action.error,
-        fetchesInProgress: state.fetchesInProgress - 1
+        ...state,
+        error: action.error
       };
     default:
       return state;

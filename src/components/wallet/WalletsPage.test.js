@@ -45,7 +45,7 @@ describe('WalletPage', () => {
 
   it('calls the wallet API', () => {
     const store = configureStore();
-    store.dispatch(loadWallets());
+    store.dispatch(loadWallets({ userId: mockUserId }));
 
     render(
       <Provider store={store}>
@@ -61,7 +61,7 @@ describe('WalletPage', () => {
 
   it('renders a wallet for each wallet in test data', async () => {
     const store = configureStore();
-    store.dispatch(loadWallets());
+    store.dispatch(loadWallets({ userId: mockUserId }));
 
     const { getByText } = render(
       <Provider store={store}>
@@ -80,7 +80,7 @@ describe('WalletPage', () => {
 
   it('has a link to the exchange page', async () => {
     const store = configureStore();
-    store.dispatch(loadWallets());
+    store.dispatch(loadWallets({ userId: mockUserId }));
 
     const { getByTestId } = render(
       <Provider store={store}>
@@ -98,7 +98,7 @@ describe('WalletPage', () => {
     );
 
     const store = configureStore();
-    store.dispatch(loadWallets());
+    store.dispatch(loadWallets({ userId: mockUserId }));
 
     const { getByText } = render(
       <Provider store={store}>

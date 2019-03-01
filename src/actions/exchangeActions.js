@@ -1,6 +1,5 @@
 import WalletsApi from '../api/WalletsApi';
 import * as types from './actionTypes';
-import { loadWallets } from './walletsActions';
 
 export function initiateExchange() {
   return { type: types.INITIATE_EXCHANGE };
@@ -11,6 +10,10 @@ export function exchangeSuccess(wallets) {
 
 export function exchangeFailure(error) {
   return { type: types.EXCHANGE_FAILURE, error };
+}
+
+export function updateExchangeParameters(payload) {
+  return { type: types.UPDATE_EXCHANGE_PARAMETERS, payload };
 }
 
 export function exchange({ userId, from, to, rate }) {
@@ -24,7 +27,6 @@ export function exchange({ userId, from, to, rate }) {
         rate
       });
       dispatch(exchangeSuccess(wallets));
-      dispatch(loadWallets());
       return { wallets };
     } catch (e) {
       dispatch(exchangeFailure(e));

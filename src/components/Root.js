@@ -6,6 +6,9 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import ExchangePage from './exchange/ExchangePage';
 import { paths } from '../constants/constants';
 
+import { ToastContainer, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Root = ({ store }) => {
   return (
     <Provider store={store}>
@@ -16,6 +19,7 @@ const Root = ({ store }) => {
           <Route path={paths.root} component={WalletsPage} />
         </Switch>
       </BrowserRouter>
+      <ToastContainer autoClose={2000} transition={Zoom} hideProgressBar />
     </Provider>
   );
 };
