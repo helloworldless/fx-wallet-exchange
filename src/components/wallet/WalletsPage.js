@@ -8,7 +8,7 @@ import { loadExchangeHistory } from '../../actions/exchangeHistoryActions';
 import { formatCurrency } from '../../utils/util';
 import { mockUserId } from '../../data/mockData';
 
-class WalletsContainer extends PureComponent {
+class WalletsPage extends PureComponent {
   state = { userId: mockUserId, selectedWalletIndex: 0 };
 
   componentDidMount() {
@@ -78,7 +78,7 @@ class WalletsContainer extends PureComponent {
   }
 }
 
-WalletsContainer.propTypes = {
+WalletsPage.propTypes = {
   wallets: PropTypes.arrayOf(
     PropTypes.shape({
       ...walletPropTypes
@@ -109,4 +109,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(WalletsContainer);
+)(WalletsPage);

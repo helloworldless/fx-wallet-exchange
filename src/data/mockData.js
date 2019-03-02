@@ -24,7 +24,7 @@ const mockWalletData = {
 
 // Based on data from https://openexchangerates.org
 // TODO - Extract this into a function which transforms the data from the API call
-const availableCurrencies = [Currency.USD, Currency.GBP, Currency.EUR];
+const availableCurrencyCodes = [Currency.USD, Currency.GBP, Currency.EUR];
 
 const mockRates = {
   [Currency.USD + Currency.EUR]: 0.877693,
@@ -35,4 +35,4 @@ const mockRates = {
   [Currency.GBP + Currency.EUR]: 1.165699
 };
 
-export { mockWalletData, mockUserId, mockRates, availableCurrencies };
+export { mockWalletData, mockUserId, mockRates, availableCurrencyCodes };

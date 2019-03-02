@@ -4,8 +4,11 @@ import * as types from './actionTypes';
 export function initiateExchange() {
   return { type: types.INITIATE_EXCHANGE };
 }
-export function exchangeSuccess(wallets) {
-  return { type: types.EXCHANGE_SUCCESS, wallets };
+export function exchangeSuccess({ wallets, exchangeHistory }) {
+  return {
+    type: types.EXCHANGE_SUCCESS,
+    payload: { wallets, exchangeHistory }
+  };
 }
 
 export function exchangeFailure(error) {
@@ -20,13 +23,14 @@ export function exchange({ userId, from, to, rate }) {
   return async dispatch => {
     dispatch(initiateExchange());
     try {
-      const wallets = await WalletsApi.exchange({
+      const { wallets, exchangeHistory } = await WalletsApi.exchange({
         userId,
         from,
         to,
         rate
       });
-      dispatch(exchangeSuccess(wallets));
+      debugger;
+      dispatch(exchangeSuccess({ wallets, exchangeHistory }));
       return { wallets };
     } catch (e) {
       dispatch(exchangeFailure(e));

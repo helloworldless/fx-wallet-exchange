@@ -9,8 +9,11 @@ import { loadWallets } from '../../actions/walletsActions';
 import { BrowserRouter } from 'react-router-dom';
 
 jest.mock('../../api/WalletsApi');
+// getWalletsByUserId({ userId }) => {wallets, exchangeHistory: exchangeHistory[userId]
+// exchange({ userId, from, to, rate }) => {wallets, exchangeHistory}
+// getExchangeHistory({ userId }) => exchangeHistory[userId]
 WalletsApi.getWalletsByUserId.mockImplementation(({ userId }) =>
-  Promise.resolve(mockWalletData[userId])
+  Promise.resolve({ wallets: mockWalletData[userId] })
 );
 
 describe('WalletPage', () => {
@@ -73,7 +76,7 @@ describe('WalletPage', () => {
     // wait and search for each currency in the mock wallet data
     await waitForElement(() =>
       mockWalletData[mockUserId].map(wallet =>
-        getByText(new RegExp(wallet.currencyCode))
+        expect(getByText(new RegExp(wallet.currencyCode))).toBeInTheDocument()
       )
     );
   });

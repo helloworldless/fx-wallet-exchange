@@ -34,6 +34,24 @@ export const buildEmptySide = () => ({
   selectedIndex: null
 });
 
+export const getFromAndToDefaults = ({ availableCurrencyCodes }) => {
+  const from = buildEmptySide();
+  from.code = availableCurrencyCodes[0];
+  from.selectedIndex = 0;
+  const to = buildEmptySide();
+  to.code = availableCurrencyCodes[1];
+  to.selectedIndex = 1;
+  return { from, to };
+};
+
 export const getOtherSide = fromOrTo => {
   return fromOrTo === Side.From ? Side.To : Side.From;
+};
+
+export const amountToString = amount => {
+  return amount === 0 ? '' : String(amount);
+};
+
+export const convert = ({ shouldInvert, amount, rate }) => {
+  return shouldInvert ? amount * (1 / rate) : amount * rate;  
 };

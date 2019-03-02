@@ -44,7 +44,11 @@ class WalletsApi {
   static async getWalletsByUserId({ userId }) {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve(getLatestWallets({ userId }));
+        const wallets = getLatestWallets({ userId });
+        resolve({
+          wallets,
+          exchangeHistory: exchangeHistory[userId]
+        });
       }, DELAY);
     });
   }
@@ -73,7 +77,11 @@ class WalletsApi {
 
         addWalletsHistory({ userId, wallets: newWallets });
         addExchangeHistory({ userId, from, to, rate });
-        resolve(newWallets);
+        debugger;
+        resolve({
+          wallets: newWallets,
+          exchangeHistory: exchangeHistory[userId]
+        });
       }, DELAY);
     });
   }

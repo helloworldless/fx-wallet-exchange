@@ -7,6 +7,9 @@ export default function exchangeHistoryReducer(state = [], action) {
       return exchangeHistory;
     case types.LOAD_EXCHANGE_HISTORY_FAILURE:
       return state;
+    case types.EXCHANGE_SUCCESS:
+      debugger;
+      return action.payload.exchangeHistory;
     default:
       return state;
   }

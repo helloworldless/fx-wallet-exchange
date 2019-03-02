@@ -97,6 +97,7 @@ const ExchangeSide = ({
           placeholder={placeholder}
           data-from-to={fromOrTo}
           onChange={handleChangeAmount}
+          data-testid={`exchange-input-${fromOrTo}`}
         />
       </div>
       <NavForSwipeable
