@@ -29,7 +29,6 @@ export function exchange({ userId, from, to, rate }) {
         to,
         rate
       });
-      debugger;
       dispatch(exchangeSuccess({ wallets, exchangeHistory }));
       return { wallets };
     } catch (e) {

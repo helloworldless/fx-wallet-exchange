@@ -16,12 +16,9 @@ import { loadWallets } from '../../actions/walletsActions';
 import { mockRates, availableCurrencyCodes } from '../../data/mockData';
 import FxRatesApi from '../../api/FxRatesApi';
 import { getFromAndToDefaults, amountToString } from '../../utils/exchangeUtil';
-import { round, walletsArrToObj } from '../../utils/util';
+import { round } from '../../utils/util';
 
 jest.mock('../../api/WalletsApi');
-// getWalletsByUserId({ userId }) => {wallets, exchangeHistory: exchangeHistory[userId]
-// exchange({ userId, from, to, rate }) => {wallets, exchangeHistory}
-// getExchangeHistory({ userId }) => exchangeHistory[userId]
 WalletsApi.getWalletsByUserId.mockImplementation(({ userId }) =>
   Promise.resolve({
     wallets: mockWalletData[userId],
@@ -78,9 +75,14 @@ describe('ExchangePage', () => {
       </Provider>
     );
 
-    // wait and search for each currency in the mock wallet data
+    // wait and search for the wallets using the default selected currencies
+    const { from, to } = getFromAndToDefaults({ availableCurrencyCodes });
+    const defaultWallets = Object.values(mockWalletData[mockUserId]).filter(
+      wallet =>
+        wallet.currencyCode === from.code || wallet.currencyCode === to.code
+    );
     await waitForElement(() =>
-      mockWalletData[mockUserId].map(wallet => {
+      defaultWallets.map(wallet => {
         expect(getByText(new RegExp(wallet.currencyCode))).toBeInTheDocument();
         expect(getByText(new RegExp(wallet.amount))).toBeInTheDocument();
       })
@@ -111,9 +113,7 @@ describe('ExchangePage', () => {
       userId: mockUserId
     });
 
-    const walletsAsObj = walletsArrToObj(wallets);
-
-    const testFromValue = amountToString(walletsAsObj[from.code].amount - 1);
+    const testFromValue = amountToString(wallets[from.code].amount - 1);
     const parsed = parseFloat(testFromValue);
 
     const rate = rates[from.code + to.code];
@@ -152,14 +152,17 @@ describe('ExchangePage', () => {
       userId: mockUserId
     });
 
-    const walletsAsObj = walletsArrToObj(wallets);
-
-    console.log('wallets in test', JSON.stringify(wallets));
-    console.log('from.code', from.code);
-    const testFromValue = amountToString(walletsAsObj[from.code].amount + 1);
+    const testFromValue = amountToString(wallets[from.code].amount + 1);
 
     fireEvent.change(fromInput, { target: { value: testFromValue } });
 
     expect(getByText(new RegExp('exceeds'))).toBeInTheDocument();
   });
 });
+
+// TODO
+// Add tests for other scenarios and corner cases
+// Values should be updated when changing currencies
+// Invalid exchanges should be blocked, and an error should be displayed
+// A successful exchange should redirect to /wallets and the new exchange should be displaye in history
+// etc. etc.

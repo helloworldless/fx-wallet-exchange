@@ -6,7 +6,7 @@ import IconLabelLink from '../common/IconLink';
 import { connect } from 'react-redux';
 import ExchangeSide from './ExchangeSide';
 import { Side } from '../../constants/constants';
-import { getIndex, round, walletsArrToObj } from '../../utils/util';
+import { getIndex, formatCurrency } from '../../utils/util';
 import {
   exchange,
   updateExchangeParameters
@@ -17,16 +17,12 @@ import {
   checkOverdraft,
   overdraftMessage,
   getOtherSide,
-  amountToString
+  isValidMoneyFormat,
+  getUpdatedFollowerSide,
+  roundTwoDecimals
 } from '../../utils/exchangeUtil';
 import { toast } from 'react-toastify';
 import { loadWallets } from '../../actions/walletsActions';
-
-// zero or more numeric digits, e.g. '', '100'
-// or one or more numeric digits followed by a point plus exactly two more numeric digits, e.g. 123.45
-// we allow zero digits (a blank string) as this will be interpreted as zero (0)
-const regexMoney = /^(-?\d*|-?\d+\.\d{2})$/;
-const validFormatMessage = 'Amount should be of the format 123.45';
 
 // Enforce both length and amount limits
 const MAX_INPUT_LENGTH = 10;
@@ -40,7 +36,6 @@ class ExchangePage extends PureComponent {
   };
 
   componentDidMount() {
-    // console.log(Object.keys(this.props));
     this.props.loadWallets({ userId: this.state.userId });
   }
 
@@ -56,13 +51,7 @@ class ExchangePage extends PureComponent {
 
   handleChangeAmount = event => {
     const fromOrTo = event.target.getAttribute('data-from-to');
-    let value = event.target.value;
-    // Strip leading '-' or '+'
-    const firstChar = value.charAt(0);
-    if (firstChar === '-' || firstChar === '+') {
-      value = value.substring(1);
-    }
-    const inputAmount = value;
+    let inputAmount = event.target.value;
 
     const fromOrToState = { ...this.props.exchange[fromOrTo] };
     const otherSide = getOtherSide(fromOrTo);
@@ -70,7 +59,12 @@ class ExchangePage extends PureComponent {
 
     const { wallets } = this.props;
 
-    if (regexMoney.test(inputAmount)) {
+    const { valid, message: validMoneyFormatMessage } = isValidMoneyFormat({
+      amountAsString: inputAmount
+    });
+
+    let updatedOtherSideState;
+    if (valid) {
       const parsedValue = parseFloat(inputAmount);
       if (parsedValue > MAX_AMOUNT) {
         // Don't update the inputAmount or amount
@@ -88,11 +82,12 @@ class ExchangePage extends PureComponent {
         fromOrToState.error = isOverdraft ? overdraftMessage : '';
         fromOrToState.amount = inputAmount === '' ? 0 : parsedValue;
 
-        this.updateFollowerSide({
+        updatedOtherSideState = getUpdatedFollowerSide({
           driver: fromOrTo,
           driverSideParams: fromOrToState,
           followerSideParams: otherSideState,
-          wallets
+          wallets,
+          rates: this.props.rates
         });
       }
     } else {
@@ -101,53 +96,15 @@ class ExchangePage extends PureComponent {
           ? fromOrToState.inputAmount
           : inputAmount;
       fromOrToState.isAmountValid = false;
-      fromOrToState.error = validFormatMessage;
+      fromOrToState.error = validMoneyFormatMessage;
     }
 
     this.props.updateExchangeParameters({
       [fromOrTo]: fromOrToState,
-      [otherSide]: otherSideState
+      [otherSide]: updatedOtherSideState
+        ? updatedOtherSideState
+        : otherSideState
     });
-  };
-
-  updateFollowerSide = ({
-    driver,
-    driverSideParams,
-    followerSideParams,
-    wallets
-  }) => {
-    const fromCode =
-      driver === Side.From ? driverSideParams.code : followerSideParams.code;
-    const toCode =
-      driver === Side.From ? followerSideParams.code : driverSideParams.code;
-    const rate = this.props.rates[fromCode + toCode] || 1;
-
-    if (driver === Side.From) {
-      followerSideParams.amount = round(driverSideParams.amount * rate, -2);
-      followerSideParams.inputAmount = amountToString(
-        followerSideParams.amount
-      );
-    } else {
-      // driver is To
-      followerSideParams.amount = round(
-        driverSideParams.amount * (1 / rate),
-        -2
-      );
-      followerSideParams.inputAmount = amountToString(
-        followerSideParams.amount
-      );
-
-      // if the driver is to, then other side is from; need to do overdraft check
-      const isOverdraft = checkOverdraft({
-        fromOrTo: Side.From,
-        amount: followerSideParams.amount,
-        currencyCode: followerSideParams.code,
-        wallets
-      });
-
-      followerSideParams.isAmountValid = !isOverdraft;
-      followerSideParams.error = isOverdraft ? overdraftMessage : '';
-    }
   };
 
   handleChangeSelectedCurrency = ({ fromOrTo, index }) => {
@@ -175,24 +132,20 @@ class ExchangePage extends PureComponent {
     // for currency changes via swipe or nav buttons
     // we always want From to be the driver
     // otherwise swiping the To currency would trigger the From amount to change
-    // however, by hard coding
-    this.updateFollowerSide({
+    // however, by hard coding the driver to From here
+    // we can enforce the To side being updated
+    const updatedSide = getUpdatedFollowerSide({
       driver: Side.From,
       driverSideParams: fromOrTo === Side.From ? fromOrToState : otherSideState,
       followerSideParams:
         fromOrTo === Side.From ? otherSideState : fromOrToState,
-      wallets
+      wallets,
+      rates: this.props.rates
     });
-    // this.updateOtherSide({
-    //   driver: fromOrTo,
-    //   fromOrToState,
-    //   otherSideState,
-    //   wallets
-    // });
 
     this.props.updateExchangeParameters({
-      [fromOrTo]: fromOrToState,
-      [otherSide]: otherSideState
+      [fromOrTo]: fromOrTo === Side.From ? fromOrToState : updatedSide,
+      [otherSide]: fromOrTo === Side.From ? updatedSide : otherSideState
     });
   };
 
@@ -240,52 +193,79 @@ class ExchangePage extends PureComponent {
 
     const { error: exchangeError } = this.props.exchange;
 
+    const rate = this.props.rates[from.code + to.code];
+
     return (
       <div className={this.state.exchangePending ? 'page blur' : 'page'}>
         {(!availableCurrencyCodes.length > 0 ||
           !Object.keys(wallets).length) && <div>Loading wallets...</div>}
+        <div className="exchange-sides-container">
+          {availableCurrencyCodes.length > 0 &&
+            Object.keys(wallets).length > 0 && (
+              <div>
+                <button
+                  className="button-nostyle exchange-button"
+                  onClick={this.initiateExchange}
+                >
+                  Exchange
+                </button>
+                <div className="rate-display">
+                  {rate && (
+                    <div>
+                      {formatCurrency({ currencyCode: from.code, amount: 1 })} ={' '}
+                      {formatCurrency({
+                        currencyCode: to.code,
+                        amount: roundTwoDecimals({ amount: 1 * rate })
+                      })}
+                    </div>
+                  )}
+                </div>
+                {exchangeError && <div>{exchangeError}</div>}
 
-        {availableCurrencyCodes.length > 0 && Object.keys(wallets).length > 0 && (
-          <div>
-            <button onClick={this.initiateExchange}>Exchange</button>
-            {exchangeError && <div>{exchangeError}</div>}
-            <ExchangeSide
-              availableCurrencyCodes={availableCurrencyCodes}
-              {...from}
-              placeholder="Amount to sell"
-              wallets={wallets}
-              fromOrTo={Side.From}
-              handleChangeCurrencySwipeTo={this.handleChangeCurrencySwipeTo}
-              handleChangeCurrencySwipeFrom={this.handleChangeCurrencySwipeFrom}
-              handleChangeAmount={this.handleChangeAmount}
-              handleChangeCurrencyButtonTo={this.handleChangeCurrencyButtonTo}
-              handleChangeCurrencyButtonFrom={
-                this.handleChangeCurrencyButtonFrom
-              }
-            />
-          </div>
-        )}
-
+                <ExchangeSide
+                  availableCurrencyCodes={availableCurrencyCodes}
+                  {...from}
+                  placeholder="Amount to sell"
+                  wallets={wallets}
+                  fromOrTo={Side.From}
+                  exchangePending={this.state.exchangePending}
+                  handleChangeCurrencySwipeTo={this.handleChangeCurrencySwipeTo}
+                  handleChangeCurrencySwipeFrom={
+                    this.handleChangeCurrencySwipeFrom
+                  }
+                  handleChangeAmount={this.handleChangeAmount}
+                  handleChangeCurrencyButtonTo={
+                    this.handleChangeCurrencyButtonTo
+                  }
+                  handleChangeCurrencyButtonFrom={
+                    this.handleChangeCurrencyButtonFrom
+                  }
+                />
+                <ExchangeSide
+                  availableCurrencyCodes={availableCurrencyCodes}
+                  {...to}
+                  placeholder="Amount to buy"
+                  wallets={wallets}
+                  fromOrTo={Side.To}
+                  exchangePending={this.state.exchangePending}
+                  handleChangeCurrencySwipeTo={this.handleChangeCurrencySwipeTo}
+                  handleChangeCurrencySwipeFrom={
+                    this.handleChangeCurrencySwipeFrom
+                  }
+                  handleChangeAmount={this.handleChangeAmount}
+                  handleChangeCurrencyButtonTo={
+                    this.handleChangeCurrencyButtonTo
+                  }
+                  handleChangeCurrencyButtonFrom={
+                    this.handleChangeCurrencyButtonFrom
+                  }
+                />
+              </div>
+            )}
+        </div>
         {availableCurrencyCodes.length > 0 &&
           Object.keys(wallets).length > 0 && (
-            <ExchangeSide
-              availableCurrencyCodes={availableCurrencyCodes}
-              {...to}
-              placeholder="Amount to buy"
-              wallets={wallets}
-              fromOrTo={Side.To}
-              handleChangeCurrencySwipeTo={this.handleChangeCurrencySwipeTo}
-              handleChangeCurrencySwipeFrom={this.handleChangeCurrencySwipeFrom}
-              handleChangeAmount={this.handleChangeAmount}
-              handleChangeCurrencyButtonTo={this.handleChangeCurrencyButtonTo}
-              handleChangeCurrencyButtonFrom={
-                this.handleChangeCurrencyButtonFrom
-              }
-            />
-          )}
-        {availableCurrencyCodes.length > 0 &&
-          Object.keys(wallets).length > 0 && (
-            <IconLabelLink to={paths.wallets} Icon={ArrowBack} lawabel="Back" />
+            <IconLabelLink to={paths.wallets} Icon={ArrowBack} label="Back" />
           )}
       </div>
     );
@@ -307,7 +287,7 @@ const mapStateToProps = state => {
   return {
     rates: state.rates.rates,
     availableCurrencyCodes: state.rates.currencies,
-    wallets: walletsArrToObj(state.wallets),
+    wallets: state.wallets,
     exchange: state.exchange
   };
 };

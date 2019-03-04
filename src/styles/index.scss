@@ -3,11 +3,18 @@ $theme-blue: #038eff;
 $theme-light-blue: #67bdff;
 $theme-text-primary: #ffffff;
 
+$screen-large: 1000px;
+$screen-medium: 850px;
+$screen-small: 600px;
+$screen-extrasmall: 500px;
+
+$page-margin: 1rem;
+
 body {
   margin: 0;
   padding: 0;
   text-align: center;
-  height: 100vh;
+  min-height: calc(100vh - 2 * #{$page-margin});
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -22,15 +29,14 @@ body {
     $theme-blue 50%,
     $theme-dark-blue 100%
   );
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-.root {
-  height: 100%;
 }
 
 .button-nostyle {
@@ -47,13 +53,11 @@ code {
   align-items: center;
 }
 
-$page-margin: 1rem;
 .page {
+  min-height: calc(100vh - 2 * #{$page-margin});
+  margin: $page-margin;
   @extend %flex-centered;
   flex-direction: column;
-
-  margin: $page-margin;
-  height: calc(100vh - 2 * #{$page-margin});
 }
 
 .link {
@@ -84,7 +88,16 @@ $page-margin: 1rem;
 }
 
 .exchange-amount-input {
-  width: 50vw;
+  width: 25vw;
+  @media screen and (max-width: $screen-medium) {
+    width: 35vw;
+  }
+  @media screen and (max-width: $screen-small) {
+    width: 45vw;
+  }
+  @media screen and (max-width: $screen-extrasmall) {
+    width: 60vw;
+  }
   text-align: center;
   color: $theme-text-primary;
   font-size: 2rem;
@@ -105,4 +118,15 @@ $page-margin: 1rem;
 
 .blur {
   filter: blur(2px);
+}
+.rate-display {
+  height: 1rem;
+  margin: 1rem;
+}
+
+.exchange-button {
+  cursor: pointer;
+  color: $theme-text-primary;
+  font-size: 1.5rem;
+  padding: 0.25rem;
 }

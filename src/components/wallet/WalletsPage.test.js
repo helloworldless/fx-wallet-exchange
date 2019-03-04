@@ -75,7 +75,7 @@ describe('WalletPage', () => {
     );
     // wait and search for each currency in the mock wallet data
     await waitForElement(() =>
-      mockWalletData[mockUserId].map(wallet =>
+      Object.values(mockWalletData[mockUserId]).map(wallet =>
         expect(getByText(new RegExp(wallet.currencyCode))).toBeInTheDocument()
       )
     );

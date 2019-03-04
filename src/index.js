@@ -9,6 +9,6 @@ const store = configureStore();
 
 const loadRatesAction = loadRates();
 store.dispatch(loadRatesAction);
-// setInterval(() => store.dispatch(loadRatesAction), 10000);
+setInterval(() => store.dispatch(loadRatesAction), 10000);
 
 ReactDOM.render(<Root store={store} />, document.getElementById('root'));

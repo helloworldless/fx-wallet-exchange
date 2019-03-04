@@ -56,13 +56,4 @@ const round = (value, exp) => {
   return decimalAdjust('round', value, exp);
 };
 
-const arrToObj = keyGetter => arr => {
-  return arr.reduce((obj, curr) => {
-    obj[keyGetter(curr)] = curr;
-    return obj;
-  }, {});
-};
-
-const walletsArrToObj = arrToObj(wallet => wallet.currencyCode);
-
-export { formatCurrency, getIndex, round, walletsArrToObj };
+export { formatCurrency, getIndex, round };

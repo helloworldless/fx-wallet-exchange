@@ -3,23 +3,23 @@ import { Currency, CurrencyMetadata } from '../constants/constants';
 const mockUserId = 101;
 
 const mockWalletData = {
-  [mockUserId]: [
-    {
+  [mockUserId]: {
+    [Currency.USD]: {
       currencyCode: Currency.USD,
       currencyName: CurrencyMetadata[Currency.USD].name,
       amount: 87.12
     },
-    {
+    [Currency.GBP]: {
       currencyCode: Currency.GBP,
       currencyName: CurrencyMetadata[Currency.GBP].name,
       amount: 33.9
     },
-    {
+    [Currency.EUR]: {
       currencyCode: Currency.EUR,
       currencyName: CurrencyMetadata[Currency.EUR].name,
       amount: 9.61
     }
-  ]
+  }
 };
 
 // Based on data from https://openexchangerates.org

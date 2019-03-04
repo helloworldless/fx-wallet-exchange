@@ -18,7 +18,6 @@ export function loadWallets({ userId }) {
       const { wallets, exchangeHistory } = await WalletsApi.getWalletsByUserId({
         userId
       });
-      debugger;
       dispatch(loadWalletsSuccess({ wallets, exchangeHistory }));
     } catch (e) {
       dispatch(loadWalletsFailure(e));

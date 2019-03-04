@@ -6,16 +6,6 @@ import { formatCurrency } from '../../utils/util';
 import { Side } from '../../constants/constants';
 import { MAX_AMOUNT } from './ExchangePage';
 
-// const formatInputAmount = (fromOrTo, inputAmount) => {
-//   if (inputAmount === '') return inputAmount;
-//   return fromOrTo === Side.From ? `-${inputAmount}` : `+${inputAmount}`;
-// };
-
-// const formatAmount = (fromOrTo, amount, code) => {
-//   const newAmount = fromOrTo === Side.From ? amount * -1 : amount;
-//   return formatCurrency({ currencyCode: code, amount: newAmount });
-// };
-
 const getAmountAfter = (fromOrTo, walletAmount, amount) => {
   return fromOrTo === Side.From ? walletAmount - amount : walletAmount + amount;
 };
@@ -30,6 +20,8 @@ const ExchangeSide = ({
   selectedIndex,
   placeholder,
   wallets,
+  exchangePending,
+
   handleChangeCurrencySwipeTo,
   handleChangeCurrencySwipeFrom,
   handleChangeAmount,
@@ -92,8 +84,7 @@ const ExchangeSide = ({
           min="0"
           max={MAX_AMOUNT}
           value={inputAmount}
-          // value={formatInputAmount(fromOrTo, inputAmount)}
-          // value={formatAmount(fromOrTo, amount, code)}
+          disabled={exchangePending}
           placeholder={placeholder}
           data-from-to={fromOrTo}
           onChange={handleChangeAmount}
@@ -123,6 +114,7 @@ ExchangeSide.propTypes = {
   selectedIndex: PropTypes.number.isRequired,
   placeholder: PropTypes.string.isRequired,
   wallets: PropTypes.object.isRequired,
+  exchangePending: PropTypes.bool.isRequired,
   handleChangeCurrencySwipeTo: PropTypes.func.isRequired,
   handleChangeCurrencySwipeFrom: PropTypes.func.isRequired,
   handleChangeAmount: PropTypes.func.isRequired,

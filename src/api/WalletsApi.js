@@ -1,18 +1,12 @@
 import { mockWalletData } from '../data/mockData';
+import { validateExchange } from '../utils/exchangeUtil';
 
 // Default delay to simulate API call
 const DELAY = 1000;
 
 const isValid = ({ userId, from, to, rate, wallets }) => {
-  const rateValid = true; // Do some validation to make sure the rate is valid
-
-  const fromWallet = wallets.find(wallet => wallet.currencyCode === from.code);
-  const fromValid = fromWallet && from.amount <= fromWallet.amount;
-
-  const toWallet = wallets.find(wallet => wallet.currencyCode === to.code);
-  const toValid = toWallet !== null && toWallet !== undefined;
-
-  return rateValid && fromValid && toValid;
+  // TODO - Do some validation to make sure the rate is valid
+  return validateExchange({ from, to, wallets });
 };
 
 const walletsHistory = {};
@@ -56,28 +50,30 @@ class WalletsApi {
   static async exchange({ userId, from, to, rate }) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const wallets = [...getLatestWallets({ userId })];
+        const wallets = { ...getLatestWallets({ userId }) };
 
         const valid = isValid({ userId, from, to, rate, wallets });
         if (!valid) {
           reject('Invalid exchange');
         }
 
-        const newWallets = wallets.map(wallet => {
-          const newWallet = { ...wallet };
-          if (wallet.currencyCode === from.code) {
-            newWallet.amount = wallet.amount - from.amount;
-          }
-          if (wallet.currencyCode === to.code) {
-            newWallet.amount = wallet.amount + to.amount;
-          }
-
-          return newWallet;
-        });
+        const newWallets = Object.values(wallets).reduce(
+          (newWallets, wallet) => {
+            const newWallet = { ...wallet };
+            if (wallet.currencyCode === from.code) {
+              newWallet.amount = wallet.amount - from.amount;
+            }
+            if (wallet.currencyCode === to.code) {
+              newWallet.amount = wallet.amount + to.amount;
+            }
+            newWallets[wallet.currencyCode] = newWallet;
+            return newWallets;
+          },
+          {}
+        );
 
         addWalletsHistory({ userId, wallets: newWallets });
         addExchangeHistory({ userId, from, to, rate });
-        debugger;
         resolve({
           wallets: newWallets,
           exchangeHistory: exchangeHistory[userId]

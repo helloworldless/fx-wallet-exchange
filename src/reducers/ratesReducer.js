@@ -7,7 +7,7 @@ export default function ratesReducer(
   switch (action.type) {
     case types.LOAD_RATES_SUCCESS:
       console.info('Updated rates received');
-      const { rates, currencies } = action.rates;
+      const { rates, currencies } = action.payload;
       return {
         rates,
         currencies

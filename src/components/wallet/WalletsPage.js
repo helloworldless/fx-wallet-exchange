@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import WalletsBrowser from './WalletsBrowser';
-import { walletPropTypes } from './Wallet';
 import { loadWallets } from '../../actions/walletsActions';
 import { loadExchangeHistory } from '../../actions/exchangeHistoryActions';
 import { formatCurrency } from '../../utils/util';
@@ -35,12 +34,14 @@ class WalletsPage extends PureComponent {
     const { wallets, error, exchangeHistory } = this.props;
     const { selectedWalletIndex } = this.state;
 
+    const walletsAsArr = Object.values(wallets);
+
     return (
       <div className="page">
-        {wallets.length > 0 ? (
+        {walletsAsArr.length > 0 ? (
           <WalletsBrowser
             selectedWalletIndex={selectedWalletIndex}
-            wallets={wallets}
+            wallets={walletsAsArr}
             handleChangeSelectedWalletSwipeable={
               this.handleChangeSelectedWalletSwipeable
             }
@@ -57,7 +58,7 @@ class WalletsPage extends PureComponent {
           <div>
             <h3>History</h3>
             {exchangeHistory.map((hist, i) => (
-              <div>
+              <div key={i}>
                 Sell{' '}
                 {formatCurrency({
                   currencyCode: hist.from.code,
@@ -79,11 +80,7 @@ class WalletsPage extends PureComponent {
 }
 
 WalletsPage.propTypes = {
-  wallets: PropTypes.arrayOf(
-    PropTypes.shape({
-      ...walletPropTypes
-    })
-  ).isRequired,
+  wallets: PropTypes.object.isRequired,
   error: PropTypes.string,
   exchangeHistory: PropTypes.array.isRequired,
   loadWallets: PropTypes.func.isRequired,
