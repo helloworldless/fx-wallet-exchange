@@ -1,4 +1,3 @@
-import { Side } from '../constants/constants';
 import { round } from './util';
 
 // zero or more numeric digits, e.g. '', '100'
@@ -7,7 +6,7 @@ import { round } from './util';
 const regexMoney = /^(-?\d*|-?\d+\.\d{2})$/;
 const validFormatMessage = 'Amount should be of the format 123.45';
 
-export const isValidMoneyFormat = ({ amountAsString }) => {
+export const isValidMoneyFormat = ({ amountAsString }: {amountAsString: string}) => {
   const valid = regexMoney.test(amountAsString);
   if (!valid) {
     return { valid: false, message: validFormatMessage };
@@ -16,7 +15,53 @@ export const isValidMoneyFormat = ({ amountAsString }) => {
   return { valid: true };
 };
 
-const runValidations = ({ from, to, wallets }, fns) => {
+enum Side {
+  From = 'from', 
+  To = 'to'
+}
+
+type SideParams = {
+  code: string,
+  amount: number,
+  inputAmount: string,
+  isAmountValid: boolean,
+  error: string,
+  selectedIndex: number
+}
+
+type SideParamsDefaults = {
+  code: string | null,
+  amount: number | null,
+  inputAmount: string | null,
+  isAmountValid: boolean | null,
+  error: string | null,
+  selectedIndex: number | null
+}
+
+type Wallet = {
+  currencyCode: string,
+  currencyName: string,
+  amount: number
+}
+
+type Wallets = {
+  [currencyCode: string]: Wallet
+}
+
+type ValidationResult = {
+  valid: boolean, 
+  error?: string
+}
+
+type ExchangeValidationParameters = {
+  from: SideParams,
+  to: SideParams,
+  wallets: Wallets
+}
+
+type ExchangeValidator = (obj: ExchangeValidationParameters) => ValidationResult;
+
+const runValidations = ({ from, to, wallets }: ExchangeValidationParameters, fns: Array<ExchangeValidator>) => {
   for (let fn of fns) {
     const { valid, error } = fn({ from, to, wallets });
     if (!valid) return { valid, error };
@@ -24,7 +69,7 @@ const runValidations = ({ from, to, wallets }, fns) => {
   return { valid: true };
 };
 
-const sidesValid = ({ from, to }) => {
+const sidesValid = ({ from, to }: {from: SideParams, to: SideParams}) => {
   if (from.code === to.code) {
     return {
       valid: false,
@@ -34,7 +79,7 @@ const sidesValid = ({ from, to }) => {
   return { valid: true };
 };
 
-const amountValid = ({ from, to }) => {
+const amountValid = ({ from, to }: {from: SideParams, to: SideParams}) => {
   if (from.amount === 0) {
     return {
       valid: false,
@@ -50,7 +95,7 @@ const amountValid = ({ from, to }) => {
   return { valid: true };
 };
 
-const overdraftValid = ({ from, to, wallets }) => {
+const overdraftValid = ({ from, to, wallets }: ExchangeValidationParameters) => {
   if (
     checkOverdraft({
       fromOrTo: Side.From,
@@ -64,7 +109,7 @@ const overdraftValid = ({ from, to, wallets }) => {
   return { valid: true };
 };
 
-const moneyFormatValid = ({ from, to, wallets }) => {
+const moneyFormatValid = ({ from, to, wallets }: ExchangeValidationParameters) => {
   const { valid, message } = isValidMoneyFormat({
     amountAsString: from.inputAmount
   });
@@ -76,18 +121,18 @@ const moneyFormatValid = ({ from, to, wallets }) => {
   return { valid: true };
 };
 
-const validationFns = [
+const validationFns: Array<ExchangeValidator> = [
   sidesValid,
   amountValid,
   overdraftValid,
   moneyFormatValid
 ];
 
-export const validateExchange = ({ from, to, wallets }) => {
+export const validateExchange = ({ from, to, wallets }: ExchangeValidationParameters) => {
   return runValidations({ from, to, wallets }, validationFns);
 };
 
-export const checkOverdraft = ({ fromOrTo, amount, currencyCode, wallets }) => {
+export const checkOverdraft = ({ fromOrTo, amount, currencyCode, wallets }: {fromOrTo: Side, amount: number, currencyCode: string, wallets: Wallets}) => {
   if (fromOrTo === Side.To) {
     return false;
   }
@@ -96,7 +141,7 @@ export const checkOverdraft = ({ fromOrTo, amount, currencyCode, wallets }) => {
 
 export const overdraftMessage = 'Value exceeds amount in wallet';
 
-export const buildEmptySide = () => ({
+export const buildEmptySide = (): SideParamsDefaults => ({
   code: null,
   amount: 0,
   inputAmount: '',
@@ -105,31 +150,40 @@ export const buildEmptySide = () => ({
   selectedIndex: null
 });
 
-export const getFromAndToDefaults = ({ availableCurrencyCodes }) => {
-  const from = buildEmptySide();
+type Sides = {
+  from: SideParams,
+  to: SideParams
+}
+
+export const getFromAndToDefaults = ({ availableCurrencyCodes }: {availableCurrencyCodes: Array<string>}): Sides => {
+  const from: SideParamsDefaults = buildEmptySide();
   from.code = availableCurrencyCodes[0];
   from.selectedIndex = 0;
-  const to = buildEmptySide();
+  const to: SideParamsDefaults = buildEmptySide();
   to.code = availableCurrencyCodes[1];
   to.selectedIndex = 1;
-  return { from, to };
+  return { from, to } as Sides;
 };
 
-export const getOtherSide = fromOrTo => {
+export const getOtherSide = (fromOrTo: Side): Side => {
   return fromOrTo === Side.From ? Side.To : Side.From;
 };
 
-export const amountToString = amount => {
+export const amountToString = (amount: number): string => {
   return amount === 0 ? '' : String(amount.toFixed(2));
 };
 
-export const convert = ({ shouldInvert, amount, rate }) => {
+export const convert = ({ shouldInvert, amount, rate }: {shouldInvert: boolean, amount: number, rate: number}): number => {
   return shouldInvert ? amount * (1 / rate) : amount * rate;
 };
 
-export const roundTwoDecimals = ({ amount }) => {
+export const roundTwoDecimals = ({ amount }: {amount: number}) => {
   return round(amount, -2);
 };
+
+type Rates = {
+  [pair: string]: number
+}
 
 export const getUpdatedFollowerSide = ({
   driver,
@@ -137,6 +191,12 @@ export const getUpdatedFollowerSide = ({
   followerSideParams,
   wallets,
   rates
+}: {
+  driver: Side,
+  driverSideParams: SideParams,
+  followerSideParams: SideParams,
+  wallets: Wallets,
+  rates: Rates
 }) => {
   const updatedFollowerSideParams = { ...followerSideParams };
   const fromCode =
@@ -164,7 +224,7 @@ export const getUpdatedFollowerSide = ({
     );
 
     if (wallets) {
-      // if the driver is to, then other side is from; need to do overdraft check
+      // if the driver is To, then other side is From and we need to do overdraft check
       const isOverdraft = checkOverdraft({
         fromOrTo: Side.From,
         amount: updatedFollowerSideParams.amount,
